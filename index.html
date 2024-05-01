@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Data Science Tutor👩🏻‍🏫</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #8e44ad, #3498db);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        #chat-container {
+            border: 1px solid #ccc;
+            background: linear-gradient(135deg, #ffffff, #f6f6f6);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            width: 80%; 
+            max-width: 800px; 
+            height: 300px; 
+            overflow-y: auto;
+            word-wrap: break-word;
+        }
+        .message {
+            margin-bottom: 10px;
+            display: flex;
+            flex-direction: column; 
+        }
+        .user-message, .assistant-message {
+            border-radius: 20px;
+            padding: 10px;
+            max-width: 70%;
+            word-wrap: break-word;
+            margin-bottom: 10px; 
+        }
+        .user-message {
+            background-color: #3498db;
+            color: #fff;
+            align-self: flex-end; 
+        }
+        .assistant-message {
+            background-color: #ecf0f1;
+            color: #333;
+        }
+        #chat-form {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            margin-top: 20px;
+        }
+        #user-input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 20px;
+            border: 1px solid #ccc;
+            margin-right: 10px;
+            font-size: 16px;
+            outline: none;
+        }
+        #user-input:focus {
+            border-color: #3498db;
+        }
+        #send-button {
+            background: linear-gradient(135deg, #8e44ad, #3498db);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 16px;
+            cursor: pointer;
+            outline: none;
+        }
+        #send-button:hover {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+        }
+        #start-message {
+            text-align: center;
+            margin-top: 50px;
+            font-size: 24px;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body>
+    <h1 id="start-message">Welcome to AI Data Science Tutor👩🏻‍🏫</h1>
+    <div class="chat-container" id="chat-container">
+       
+    </div>
+    <form id="chat-form">
+        <input type="text" id="user-input" placeholder="Type your message here...">
+        <button type="submit" id="send-button">Send</button>
+    </form>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const chatForm = document.getElementById("chat-form");
+            const userInput = document.getElementById("user-input");
+            const chatContainer = document.getElementById("chat-container");
+
+            chatForm.addEventListener("submit", function (event) {
+                event.preventDefault();
+                const userMessage = userInput.value.trim();
+                if (userMessage === "") return;
+                
+                appendMessage("user", userMessage);
+                userInput.value = "";
+
+                fetch("/chat", {
+                    method: "POST",
+                    body: new URLSearchParams({ user_input: userMessage }),
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded",
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    appendMessage(data.role, data.content);
+                    
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                })
+                .catch(error => console.error("Error:", error));
+            });
+
+            function appendMessage(role, content) {
+                const messageElement = document.createElement("div");
+                messageElement.classList.add("message");
+
+                const messageContent = document.createElement("div");
+                messageContent.classList.add(role === "user" ? "user-message" : "assistant-message");
+                messageContent.textContent = content;
+
+                messageElement.appendChild(messageContent);
+                chatContainer.appendChild(messageElement);
+            }
+        });
+    </script>
+</body>
+</html>
